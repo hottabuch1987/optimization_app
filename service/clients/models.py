@@ -41,12 +41,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField("Email", unique=True)
     name = models.CharField("Имя", max_length=255, blank=True, default='')
     avatar = models.ImageField("Фото", upload_to='avatars', blank=True, null=True)
-    gender = models.CharField(choices=GENDER_TYPES, max_length=10)
+    gender = models.CharField("Пол", choices=GENDER_TYPES, max_length=10)
     is_active = models.BooleanField("Активный", default=True)
     is_superuser = models.BooleanField("Суперпользователь", default=False)
     is_staff = models.BooleanField("Администратор", default=False)
     date_joined = models.DateTimeField("Дата регистрации", default=timezone.now)
     last_login = models.DateTimeField("Последний визит", blank=True, null=True)
+    #
+    company_name = models.CharField("Название компании", max_length=100)
+    full_address = models.CharField("Адрес", max_length=100)
 
     objects = CustomUserManager()
 
