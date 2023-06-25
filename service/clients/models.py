@@ -3,10 +3,12 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.utils.timesince import timesince
 
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import ugettext_lazy as _
+
 
 class CustomUserManager(BaseUserManager):
 
@@ -46,7 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField("Суперпользователь", default=False)
     is_staff = models.BooleanField("Администратор", default=False)
     date_joined = models.DateTimeField("Дата регистрации", default=timezone.now)
-    last_login = models.DateTimeField("Последний визит", blank=True, null=True)
+    last_login = models.DateTimeField("Последний визит", auto_now_add=True, blank=True, null=True)
     #
     company_name = models.CharField("Название компании", max_length=100)
     full_address = models.CharField("Адрес", max_length=100)
@@ -56,6 +58,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
+    def created_at_formatted(self):
+       return timesince(self.date_joined)
+
     def get_avatar(self):
         if self.avatar:
             return 'http://127.0.0.1:8000' + self.avatar.url
@@ -63,6 +68,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             return 'https://loremflickr.com/320/240'
 
     class Meta:
+        ordering = ('name',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
