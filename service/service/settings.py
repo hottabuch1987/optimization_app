@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
 
+
     "clients.apps.ClientsConfig",
     "services.apps.ServicesConfig",
 ]
@@ -115,7 +116,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'service.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -192,6 +192,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'clients.User'
 
+
+CELERY_BROKER_URL = 'redis://redis:6379/0'
 
 ####LOGING######
 LOGGING = {
