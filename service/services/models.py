@@ -4,7 +4,7 @@ from django.db import models
 from clients.models import User
 from django.utils import timezone
 from django.utils.timesince import timesince
-
+from . tasks import set_price
 
 class Service(models.Model):
     name = models.CharField("Название сервиса", max_length=50)
@@ -13,6 +13,19 @@ class Service(models.Model):
     class Meta:
         verbose_name = 'Сервис'
         verbose_name_plural = 'Сервисы'
+
+
+
+    """функции переопределения"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__full_price = self.full_price
+    def save(self, *args, **kwargs):
+        if self.full_price != self.__full_price:
+            for subscription in self.subscriptions.all():
+                set_price.delay(subscription.id)
+        return super().save(*args, **kwargs)
+
 
     def __str__(self):
         return f'{self.name} - {self.full_price}'
@@ -30,6 +43,17 @@ class Plan(models.Model):
         MaxValueValidator(100)
     ])
 
+    """функции переопределения"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__discount_percent = self.discount_percent
+    def save(self, *args, **kwargs):
+        if self.discount_percent != self.__discount_percent:
+            for subscription in self.subscriptions.all():
+                set_price.delay(subscription.id)
+        return super().save(*args, **kwargs)
+
+
     class Meta:
         verbose_name = 'План'
         verbose_name_plural = 'Планы'
@@ -44,6 +68,7 @@ class Subscription(models.Model):
     plan = models.ForeignKey(Plan, related_name="subscriptions", on_delete=models.CASCADE, verbose_name="План")
     description = models.TextField('Описание', max_length=600)
     date_joined = models.DateTimeField("Дата", default=timezone.now)
+    price = models.PositiveIntegerField("Цена", default=0)
 
     """функция времени"""
     def created_at_formatted(self):
@@ -55,3 +80,20 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f'{self.client} - {self.service} - {self.plan}'
+
+
+
+
+
+
+
+
+
+
+
+    """функция переопределения"""
+    # def save(self, save_model=True, *args, **kwargs):
+    #     if save_model:
+    #         set_price.delay(self.id)
+    #     return super().save(*args, **kwargs)
+

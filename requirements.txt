@@ -1,4 +1,4 @@
-Django==3.2.16
+Django==3.2.18
 djangorestframework==3.14.0
 psycopg2-binary==2.9.6
 Pillow==9.5.0
@@ -6,3 +6,8 @@ django-cors-headers==4.1.0
 djangorestframework-simplejwt==5.2.2
 celery[redis]==5.2.7
 flower==1.2.0
+django-simple-captcha==0.5.17
+
+django-celery-results==2.5.1
+django-redis==4.0.0
+django-celery-beat==2.5.0

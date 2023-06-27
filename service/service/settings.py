@@ -73,10 +73,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    "captcha",
     "corsheaders",
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
 
+    "django_celery_results",
+    "django_celery_beat",
 
     "clients.apps.ClientsConfig",
     "services.apps.ServicesConfig",
@@ -94,7 +97,8 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8080",
+    # "http://localhost:8080",
+    "http://127.0.0.1:5173"
 ]
 
 ROOT_URLCONF = 'service.urls'
@@ -194,6 +198,31 @@ AUTH_USER_MODEL = 'clients.User'
 
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_BEAT_SHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+#
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULE = {
+    'login_mb': {
+        'task': 'events.tasks.login_mb',
+        'schedule': timedelta(seconds=10),
+    },
+    'mb_get_events': {
+        'task': 'events.tasks.mb_get_events',
+        'schedule': timedelta(seconds=10),
+    },
+}
+CELERY_CACHE_BACKEND = 'default'
+CELERY_RESULT_BACKEND = 'django-db'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',#django_redis.cache.RedisCache #django.core.cache.backends.db.DatabaseCache
+        'LOCATION': 'redis://redis:6379/0',
+    }
+}
 
 ####LOGING######
 LOGGING = {
@@ -209,3 +238,8 @@ LOGGING = {
     }
 }
 ####LOGING######
+
+
+#
+CELERY_TIMEZONE = "Europe/Moscow"
+CELERY_TASK_TRACK_STARTED = True
