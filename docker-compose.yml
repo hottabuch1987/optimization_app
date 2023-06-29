@@ -36,7 +36,7 @@ services:
     hostname: worker
     entrypoint: celery
     command:
-      -A celery_app.app worker --loglevel=info && celery -A service beat -l info -S #--loglevel=error
+      -A celery_app.app worker --loglevel=info  #--loglevel=error
     volumes:
       - ./service:/service
     #
@@ -50,6 +50,28 @@ services:
       - DB_NAME=dbname
       - DB_USER=dbuser
       - DB_PASS=pass
+
+  worker2:
+    build:
+      context: .
+    hostname: worker2
+    entrypoint: celery
+    command:
+      -A celery_app.app worker --loglevel=info
+    volumes:
+      - ./service:/service
+    #
+    links:
+      - redis
+    depends_on:
+      - redis
+      - database
+    environment:
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
+
 
   flower:
     build:

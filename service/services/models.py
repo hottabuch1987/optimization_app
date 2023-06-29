@@ -4,7 +4,7 @@ from django.db import models
 from clients.models import User
 from django.utils import timezone
 from django.utils.timesince import timesince
-from . tasks import set_price
+from . tasks import set_price, set_comment
 
 class Service(models.Model):
     name = models.CharField("Название сервиса", max_length=50)
@@ -24,6 +24,7 @@ class Service(models.Model):
         if self.full_price != self.__full_price:
             for subscription in self.subscriptions.all():
                 set_price.delay(subscription.id)
+                set_comment.delay(subscription.id)
         return super().save(*args, **kwargs)
 
 
@@ -51,6 +52,7 @@ class Plan(models.Model):
         if self.discount_percent != self.__discount_percent:
             for subscription in self.subscriptions.all():
                 set_price.delay(subscription.id)
+                set_comment.delay(subscription.id)
         return super().save(*args, **kwargs)
 
 
@@ -69,6 +71,7 @@ class Subscription(models.Model):
     description = models.TextField('Описание', max_length=600)
     date_joined = models.DateTimeField("Дата", default=timezone.now)
     price = models.PositiveIntegerField("Цена", default=0)
+    comment = models.CharField('Комментарий', max_length=50, default='')
 
     """функция времени"""
     def created_at_formatted(self):
