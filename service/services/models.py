@@ -1,9 +1,12 @@
 from django.core.validators import MaxValueValidator
 from django.db import models
+from django.db.models.signals import post_delete
 
 from clients.models import User
 from django.utils import timezone
 from django.utils.timesince import timesince
+
+from .receivers import delete_cache_total_sum
 from . tasks import set_price, set_comment
 
 class Service(models.Model):
@@ -85,18 +88,14 @@ class Subscription(models.Model):
         return f'{self.client} - {self.service} - {self.plan}'
 
 
+    """функция при создании подписки"""
+    def save(self,  *args, **kwargs):
+        creating = not bool(self.id)            #если не существует в данный момент
 
+        result = super().save(*args, **kwargs)
+        if creating:
+            set_price.delay(self.id)
+        return result
 
-
-
-
-
-
-
-
-    """функция переопределения"""
-    # def save(self, save_model=True, *args, **kwargs):
-    #     if save_model:
-    #         set_price.delay(self.id)
-    #     return super().save(*args, **kwargs)
-
+#сигналы
+post_delete.connect(delete_cache_total_sum, sender=Subscription)

@@ -243,3 +243,14 @@ LOGGING = {
 #
 CELERY_TIMEZONE = "Europe/Moscow"
 CELERY_TASK_TRACK_STARTED = True
+
+#
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',
+
+    }
+}
+#cache
+PRICE_CACHE_NAME = 'price_cache'
